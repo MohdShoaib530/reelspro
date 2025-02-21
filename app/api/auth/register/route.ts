@@ -43,7 +43,7 @@ export async function POST(req: NextRequest) {
     console.log('error', error);
     return NextResponse.json(
       {
-        message: 'failed to register user successfully'
+        message: 'failed to register user'
       },
       {
         status: 500
