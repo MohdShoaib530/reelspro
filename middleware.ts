@@ -1,5 +1,5 @@
-import withAuth from 'next-auth/middleware';
-import { NextResponse } from 'next/server';
+import { withAuth } from "next-auth/middleware";
+import { NextResponse } from "next/server";
 
 export default withAuth(
   function middleware() {
@@ -10,23 +10,23 @@ export default withAuth(
       authorized: ({ token, req }) => {
         const { pathname } = req.nextUrl;
 
-        // allow auth related routes
+        // Allow auth-related routes
         if (
-          pathname === '/register' ||
-          pathname === '/login' ||
-          pathname.startsWith('/api/auth')
+          pathname.startsWith("/api/auth") ||
+          pathname === "/login" ||
+          pathname === "/register"
         ) {
           return true;
         }
 
-        // public
-        if (pathname === '/' || pathname === '/api/videos') {
+        // Public routes
+        if (pathname === "/" || pathname.startsWith("/api/videos")) {
           return true;
         }
-
+        // All other routes require authentication
         return !!token;
-      }
-    }
+      },
+    },
   }
 );
 
@@ -39,6 +39,6 @@ export const config = {
      * - favicon.ico (favicon file)
      * - public folder
      */
-    '/((?!_next/static|_next/image|favicon.ico|public/).*)'
-  ]
+    "/((?!_next/static|_next/image|favicon.ico|public/).*)",
+  ],
 };

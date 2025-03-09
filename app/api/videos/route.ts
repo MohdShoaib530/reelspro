@@ -1,24 +1,24 @@
-import { authOptions } from '@/lib/auth';
-import { connectToDb } from '@/lib/db';
-import Video, { IVideo } from '@/models/Video';
-import { getServerSession } from 'next-auth';
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from "next/server";
+import { getServerSession } from "next-auth/next";
+import { authOptions } from "@/lib/auth";
+import { connectToDatabase } from "@/lib/db";
+import Video, { IVideo } from "@/models/Video";
 
 export async function GET() {
   try {
-    await connectToDb();
+    await connectToDatabase();
     const videos = await Video.find({}).sort({ createdAt: -1 }).lean();
+
     if (!videos || videos.length === 0) {
-      return NextResponse.json([], { status: 500 });
+      return NextResponse.json([], { status: 200 });
     }
-    return NextResponse.json(videos, { status: 200 });
+
+    return NextResponse.json(videos);
   } catch (error) {
-    console.log('error', error);
+    console.error("Error fetching videos:", error);
     return NextResponse.json(
-      { error: 'something went wrong while fetching videos' },
-      {
-        status: 500
-      }
+      { error: "Failed to fetch videos" },
+      { status: 500 }
     );
   }
 }
@@ -26,54 +26,47 @@ export async function GET() {
 export async function POST(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
+    console.log('session',session);
+
     if (!session) {
-      return NextResponse.json(
-        {
-          message: 'Unauthorized'
-        },
-        {
-          status: 400
-        }
-      );
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
+    await connectToDatabase();
     const body: IVideo = await request.json();
+    console.log('body',body);
+
+    // Validate required fields
     if (
       !body.title ||
       !body.description ||
-      !body.thumbnailUrl ||
-      !body.videoUrl
+      !body.videoUrl ||
+      !body.thumbnailUrl
     ) {
       return NextResponse.json(
-        {
-          message: 'missing required fields'
-        },
-        {
-          status: 400
-        }
+        { error: "Missing required fields" },
+        { status: 400 }
       );
     }
+
+    // Create new video with default values
     const videoData = {
       ...body,
       controls: body.controls ?? true,
       transformation: {
         height: 1920,
         width: 1080,
-        quality: body.transformation?.quality ?? 100
-      }
+        quality: body.transformation?.quality ?? 100,
+      },
     };
 
     const newVideo = await Video.create(videoData);
-    NextResponse.json(newVideo);
+    return NextResponse.json(newVideo);
   } catch (error) {
-    console.log(error);
+    console.error("Error creating video:", error);
     return NextResponse.json(
-      {
-        message: 'failed to create a video'
-      },
-      {
-        status: 400
-      }
+      { error: "Failed to create video" },
+      { status: 500 }
     );
   }
 }

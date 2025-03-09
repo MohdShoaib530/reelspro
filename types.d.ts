@@ -1,6 +1,6 @@
-import { Connection } from 'mongoose';
-
 /* eslint-disable no-var */
+import { Connection } from "mongoose";
+
 declare global {
   var mongoose: {
     conn: Connection | null;
