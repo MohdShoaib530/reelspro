@@ -6,7 +6,7 @@ export default function VideoComponent({ video }: { video: IVideo }) {
   return (
     <div className="card bg-base-100 shadow hover:shadow-lg transition-all duration-300">
       <figure className="relative px-4 pt-4">
-        <Link href={`/videos/${video._id}`} className="relative group w-full">
+        <Link href={''} className="relative group w-full">
           <div
             className="rounded-xl overflow-hidden relative w-full"
             style={{ aspectRatio: "9/16" }}
